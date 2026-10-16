@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lcmp
+      POSTGRES_USER: lcmp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lcmp -d lcmp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Do NOT publish the database port publicly. Uncomment only for local debugging:
+    # ports: ["127.0.0.1:5432:5432"]
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_URL: postgres://lcmp:${POSTGRES_PASSWORD}@db:5432/lcmp
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
+      COOKIE_SECURE: "true"
+      CSRF_COOKIE_SECURE: "true"
+      TRUST_PROXY: "true"          # only because a TLS-terminating proxy is expected in front
+      APP_BASE_URL: ${APP_BASE_URL:-https://example.com}
+      UPLOAD_DIR: /app/data/uploads
+      WEB_DIST: ../web/dist
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      OWNER_SETUP_TOKEN: ${OWNER_SETUP_TOKEN:-}
+    volumes:
+      - uploads:/app/data
+    ports:
+      - "127.0.0.1:8080:8080"      # bind to loopback; TLS via reverse proxy
+
+volumes:
+  pgdata:
+  uploads:
