@@ -82,10 +82,12 @@ export default function RequestQuotePage() {
       setResult({ reference: res.reference ?? '', accessToken: res.accessToken ?? '' });
     } catch (err) {
       const e2 = err as ApiError;
-      setGlobalError(e2.code === 'RATE_LIMITED' ? t('errors.e429')
+      setGlobalError(
+        e2.code === 'RATE_LIMITED' ? t('errors.e429')
         : e2.code === 'FILE_REJECTED' ? e2.message
         : e2.code === 'INVALID_CATEGORY' ? e2.message
-        : t('common.errorGeneric'));
+        : e2.message || t('common.errorGeneric')
+      );
     } finally { setBusy(false); }
   };
 

@@ -106,7 +106,11 @@ export default function ApplyPage() {
       else setResult({ reference: '', accessToken: '' }); // honeypot response
     } catch (err) {
       const e2 = err as ApiError;
-      setGlobalError(e2.code === 'RATE_LIMITED' ? t('errors.e429') : e2.code === 'FILE_REJECTED' ? e2.message : t('common.errorGeneric'));
+      setGlobalError(
+        e2.code === 'RATE_LIMITED' ? t('errors.e429')
+        : e2.code === 'FILE_REJECTED' ? e2.message
+        : e2.message || t('common.errorGeneric')
+      );
     } finally { setBusy(false); }
   };
 

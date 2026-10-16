@@ -68,7 +68,7 @@ const submitSchema = z.object({
 export function registerRequestRoutes(app: FastifyInstance): void {
   /** PUBLIC customer contract-request submission (multipart: `data` JSON + files). */
   app.post('/api/public/requests', {
-    config: { rateLimit: { max: 5, timeWindow: '1 hour' } },
+    config: { rateLimit: { max: config.isProd ? 20 : 200, timeWindow: '15 minutes' } },
   }, async (req, reply) => {
     const db = req.db;
     let dataJson: string | null = null;
@@ -143,7 +143,7 @@ export function registerRequestRoutes(app: FastifyInstance): void {
 
   /** PUBLIC tracking by reference + token. */
   app.post('/api/public/requests/track', {
-    config: { rateLimit: { max: 20, timeWindow: '10 minutes' } },
+    config: { rateLimit: { max: config.isProd ? 60 : 300, timeWindow: '10 minutes' } },
   }, async (req) => {
     const body = parseWith(z.object({
       reference: z.string().trim().min(4).max(30),

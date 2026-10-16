@@ -60,7 +60,7 @@ export function registerApplicationRoutes(app: FastifyInstance): void {
    * Protections: rate limit, honeypot, consent required, no self-assigned status.
    */
   app.post('/api/public/applications', {
-    config: { rateLimit: { max: 5, timeWindow: '1 hour' } },
+    config: { rateLimit: { max: config.isProd ? 20 : 200, timeWindow: '15 minutes' } },
   }, async (req, reply) => {
     const db = req.db;
     let dataJson: string | null = null;
@@ -140,7 +140,7 @@ export function registerApplicationRoutes(app: FastifyInstance): void {
 
   /** PUBLIC status tracking: requires reference + access token (unguessable). */
   app.post('/api/public/applications/track', {
-    config: { rateLimit: { max: 20, timeWindow: '10 minutes' } },
+    config: { rateLimit: { max: config.isProd ? 60 : 300, timeWindow: '10 minutes' } },
   }, async (req) => {
     const body = parseWith(z.object({
       reference: z.string().trim().min(4).max(30),
@@ -297,7 +297,7 @@ export function registerApplicationRoutes(app: FastifyInstance): void {
 
   /** Data-subject request handling: correction/deletion requests recorded + resolved by HR. */
   app.post('/api/public/applications/data-request', {
-    config: { rateLimit: { max: 3, timeWindow: '1 hour' } },
+    config: { rateLimit: { max: config.isProd ? 10 : 100, timeWindow: '15 minutes' } },
   }, async (req) => {
     const body = parseWith(z.object({
       reference: z.string().trim().min(4).max(30),
