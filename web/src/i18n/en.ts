@@ -1,6 +1,6 @@
 export const en = {
   common: {
-    appName: 'Lebanon Contracting Management Platform',
+    appName: 'AraLakom Construction & Contracting',
     save: 'Save', cancel: 'Cancel', close: 'Close', delete: 'Delete', edit: 'Edit', create: 'Create',
     search: 'Search', filter: 'Filter', reset: 'Reset', submit: 'Submit', back: 'Back', next: 'Next',
     previous: 'Previous', confirm: 'Confirm', yes: 'Yes', no: 'No', loading: 'Loading…', retry: 'Retry',
@@ -20,7 +20,7 @@ export const en = {
   nav: {
     home: 'Home', services: 'Services', projects: 'Projects', about: 'About', contact: 'Contact',
     apply: 'Work With Us', requestQuote: 'Request a Quote', track: 'Track Request',
-    login: 'Staff Login', portal: 'Client Portal',
+    login: 'Sign In', portal: 'Portal',
   },
   footer: {
     quickLinks: 'Quick Links', contactUs: 'Contact Us', legal: 'Legal',
@@ -115,9 +115,14 @@ export const en = {
     attachment: 'Your uploaded files',
   },
   auth: {
-    loginTitle: 'Staff Sign In', email: 'Email', password: 'Password', signIn: 'Sign in',
-    forgot: 'Forgot password?', loggingIn: 'Signing in…',
+    loginTitle: 'Sign In', registerTitle: 'Create an Account',
+    email: 'Email address', password: 'Password', signIn: 'Sign in', signUp: 'Create Account',
+    fullName: 'Full Name', phone: 'Phone number',
+    googleSignIn: 'Continue with Google', orDivider: 'or with email',
+    haveAccount: 'Already have an account? Sign in', noAccount: "Don't have an account? Create one",
+    forgot: 'Forgot password?', loggingIn: 'Signing in…', registering: 'Creating account…',
     invalid: 'Invalid email or password.',
+    emailExists: 'An account with this email address already exists.',
     locked: 'Account temporarily locked due to repeated failed attempts.',
     disabled: 'This account is disabled.',
     mfaTitle: 'Two-factor verification', mfaCode: '6-digit code', mfaVerify: 'Verify',
@@ -125,7 +130,7 @@ export const en = {
     forgotTitle: 'Password Reset', forgotText: 'Enter your account email. If an account exists, we will send a reset link.',
     sendReset: 'Send reset link', resetSent: 'If an account exists for this email, a reset link has been sent.',
     resetTitle: 'Choose a new password', newPassword: 'New password', confirmPassword: 'Confirm password',
-    pwPolicy: 'Minimum 10 characters with letters and digits.',
+    pwPolicy: 'Minimum 8 characters with letters and numbers.',
     resetOk: 'Password updated. You can sign in now.',
     mismatch: 'Passwords do not match.',
     logout: 'Sign out',

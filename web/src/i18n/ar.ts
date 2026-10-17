@@ -1,6 +1,6 @@
 export const ar = {
   common: {
-    appName: 'منصّة إدارة المقاولات اللبنانية',
+    appName: 'أراكم للمقاولات والتشطيبات | AraLakom',
     save: 'حفظ', cancel: 'إلغاء', close: 'إغلاق', delete: 'حذف', edit: 'تعديل', create: 'إنشاء',
     search: 'بحث', filter: 'تصفية', reset: 'إعادة ضبط', submit: 'إرسال', back: 'رجوع', next: 'التالي',
     previous: 'السابق', confirm: 'تأكيد', yes: 'نعم', no: 'لا', loading: 'جارٍ التحميل…', retry: 'إعادة المحاولة',
@@ -20,7 +20,7 @@ export const ar = {
   nav: {
     home: 'الرئيسية', services: 'خدماتنا', projects: 'أعمالنا', about: 'من نحن', contact: 'اتصل بنا',
     apply: 'انضم إلينا', requestQuote: 'اطلب عرض سعر', track: 'تتبع طلبك',
-    login: 'دخول الموظفين', portal: 'بوابة العملاء',
+    login: 'تسجيل الدخول', portal: 'لوحة التحكم',
   },
   footer: {
     quickLinks: 'روابط سريعة', contactUs: 'تواصل معنا', legal: 'قانوني',
@@ -109,9 +109,14 @@ export const ar = {
     attachment: 'ملفاتك المرفوعة',
   },
   auth: {
-    loginTitle: 'دخول الموظفين', email: 'البريد الإلكتروني', password: 'كلمة المرور', signIn: 'تسجيل الدخول',
-    forgot: 'نسيت كلمة المرور؟', loggingIn: 'جارٍ تسجيل الدخول…',
+    loginTitle: 'تسجيل الدخول', registerTitle: 'إنشاء حساب جديد',
+    email: 'البريد الإلكتروني', password: 'كلمة المرور', signIn: 'تسجيل الدخول', signUp: 'إنشاء الحساب',
+    fullName: 'الاسم الكامل', phone: 'رقم الهاتف',
+    googleSignIn: 'المتابعة باستخدام Google', orDivider: 'أو عبر البريد الإلكتروني',
+    haveAccount: 'لديك حساب بالفعل؟ تسجيل الدخول', noAccount: 'ليس لديك حساب؟ إنشاء حساب جديد',
+    forgot: 'نسيت كلمة المرور؟', loggingIn: 'جارٍ تسجيل الدخول…', registering: 'جارٍ إنشاء الحساب…',
     invalid: 'بريد إلكتروني أو كلمة مرور غير صحيحة.',
+    emailExists: 'يوجد حساب مسجّل بهذا البريد الإلكتروني مسبقاً.',
     locked: 'الحساب مقفل مؤقتاً بسبب محاولات فاشلة متكررة.',
     disabled: 'هذا الحساب معطَّل.',
     mfaTitle: 'التحقق الثنائي', mfaCode: 'الرمز المكوّن من ٦ أرقام', mfaVerify: 'تحقق',
@@ -119,7 +124,7 @@ export const ar = {
     forgotTitle: 'إعادة تعيين كلمة المرور', forgotText: 'أدخل بريد حسابك. إن كان الحساب موجوداً سنرسل رابط إعادة التعيين.',
     sendReset: 'إرسال رابط التعيين', resetSent: 'إن كان هناك حساب لهذا البريد، فقد أُرسل رابط إعادة التعيين.',
     resetTitle: 'اختر كلمة مرور جديدة', newPassword: 'كلمة المرور الجديدة', confirmPassword: 'تأكيد كلمة المرور',
-    pwPolicy: '١٠ أحرف على الأقل مع أحرف وأرقام.',
+    pwPolicy: '٨ أحرف على الأقل تحتوي على أحرف وأرقام.',
     resetOk: 'تم تحديث كلمة المرور. يمكنك تسجيل الدخول الآن.',
     mismatch: 'كلمتا المرور غير متطابقتين.',
     logout: 'تسجيل الخروج',

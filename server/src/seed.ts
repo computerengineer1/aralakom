@@ -249,64 +249,70 @@ async function main(): Promise<void> {
       await db.insert(S.milestones).values({
         projectId: p1, title, dueDate: due, weight, status: status as 'done',
         completedAt: status === 'done' ? new Date(due) : null, sortOrder: i,
-      });
+      }).onConflictDoNothing();
     }
     await db.insert(S.tasks).values([
       { projectId: p1, title: 'Order gypsum boards', status: 'in_progress', priority: 'high', dueDate: '2026-03-10', assigneePersonnelId: personnelIds[7] ?? null },
       { projectId: p1, title: 'Fix leak in master bathroom', status: 'todo', priority: 'urgent', dueDate: '2026-03-05', assigneePersonnelId: personnelIds[4] ?? null },
       { projectId: p1, title: 'Client color selection meeting', status: 'done', priority: 'normal', dueDate: '2026-02-20', completedAt: new Date() },
-    ]);
+    ]).onConflictDoNothing();
     await db.insert(S.issues).values({
       projectId: p1, title: 'Delay risk: material shipment customs hold', kind: 'risk', severity: 'high', status: 'open', ownerId: userIds.pm ?? null,
-    });
+    }).onConflictDoNothing();
     // expenses (per currency)
     await db.insert(S.expenses).values([
       { projectId: p1, category: 'materials', description: 'Gypsum boards batch 1', amount: '3200.0000', currency: 'USD', expenseDate: '2026-02-10', recordedBy: userIds.accountant ?? null },
       { projectId: p1, category: 'materials', description: 'Cables & conduits', amount: '1850.0000', currency: 'USD', expenseDate: '2026-02-18', recordedBy: userIds.accountant ?? null },
       { projectId: p1, category: 'labor', description: 'Crew wages Feb', amount: '45000000.0000', currency: 'LBP', expenseDate: '2026-02-28', recordedBy: userIds.accountant ?? null },
       { projectId: p1, category: 'transportation', description: 'Material delivery trips', amount: '420.0000', currency: 'USD', expenseDate: '2026-03-02', recordedBy: userIds.accountant ?? null },
-    ]);
+    ]).onConflictDoNothing();
   }
 
-  // ---- quotation + invoice + receipt
+  // ---- quotation + invoice + receipt (idempotent: skip if already seeded)
   if (customerIds[0] && userIds.accountant) {
-    const items = [
-      { kind: 'labor' as const, description: 'Plastering works — 220 m²', qty: '220', unit: 'm2', unitPrice: '9.5' },
-      { kind: 'material' as const, description: 'Gypsum board ceilings supply', qty: '180', unit: 'm2', unitPrice: '14' },
-      { kind: 'labor' as const, description: 'Painting 3 coats — walls & ceilings', qty: '620', unit: 'm2', unitPrice: '3.25' },
-      { kind: 'material' as const, description: 'Tiles supply (porcelain 60x60)', qty: '240', unit: 'm2', unitPrice: '18' },
-      { kind: 'equipment' as const, description: 'Scaffolding & equipment rental', qty: '1', unit: 'lot', unitPrice: '1500' },
-    ];
-    const totals = computeTotals(items.map((it) => lineTotal(it.qty, it.unitPrice)), 3, 0);
-    const [quo] = await db.insert(S.quotations).values({
-      quoteNo: `QUO-${new Date().getFullYear()}-0001`, version: 1, customerId: customerIds[0],
-      projectId: p1 ?? null, requestId: requestIds[0] ?? null,
-      status: 'sent', currency: 'USD', title: 'Apartment full finishing — Ashrafieh',
-      scopeOfWork: 'Complete interior finishing per attached BOQ.', paymentTerms: '40% advance, 40% mid-progress, 20% on handover.',
-      validUntil: '2026-05-01', discountPct: '3', taxPct: '0', ...totals,
-      approvedBy: userIds.owner ?? null, approvedAt: new Date(), sentAt: new Date(), createdBy: userIds.accountant,
-    }).returning({ id: S.quotations.id });
-    await db.insert(S.quotationItems).values(items.map((it, idx) => ({
-      quotationId: quo!.id, kind: it.kind, description: it.description, qty: it.qty, unit: it.unit,
-      unitPrice: it.unitPrice, lineTotal: lineTotal(it.qty, it.unitPrice), sortOrder: idx,
-    })));
+    const quoNo = `QUO-${new Date().getFullYear()}-0001`;
+    const [existingQuo] = await db.select({ id: S.quotations.id }).from(S.quotations).where(sql`quote_no = ${quoNo} AND version = 1`).limit(1);
+    if (!existingQuo) {
+      const items = [
+        { kind: 'labor' as const, description: 'Plastering works — 220 m²', qty: '220', unit: 'm2', unitPrice: '9.5' },
+        { kind: 'material' as const, description: 'Gypsum board ceilings supply', qty: '180', unit: 'm2', unitPrice: '14' },
+        { kind: 'labor' as const, description: 'Painting 3 coats — walls & ceilings', qty: '620', unit: 'm2', unitPrice: '3.25' },
+        { kind: 'material' as const, description: 'Tiles supply (porcelain 60x60)', qty: '240', unit: 'm2', unitPrice: '18' },
+        { kind: 'equipment' as const, description: 'Scaffolding & equipment rental', qty: '1', unit: 'lot', unitPrice: '1500' },
+      ];
+      const totals = computeTotals(items.map((it) => lineTotal(it.qty, it.unitPrice)), 3, 0);
+      const [quo] = await db.insert(S.quotations).values({
+        quoteNo: quoNo, version: 1, customerId: customerIds[0],
+        projectId: p1 ?? null, requestId: requestIds[0] ?? null,
+        status: 'sent', currency: 'USD', title: 'Apartment full finishing — Ashrafieh',
+        scopeOfWork: 'Complete interior finishing per attached BOQ.', paymentTerms: '40% advance, 40% mid-progress, 20% on handover.',
+        validUntil: '2026-05-01', discountPct: '3', taxPct: '0', ...totals,
+        approvedBy: userIds.owner ?? null, approvedAt: new Date(), sentAt: new Date(), createdBy: userIds.accountant,
+      }).returning({ id: S.quotations.id });
+      await db.insert(S.quotationItems).values(items.map((it, idx) => ({
+        quotationId: quo!.id, kind: it.kind, description: it.description, qty: it.qty, unit: it.unit,
+        unitPrice: it.unitPrice, lineTotal: lineTotal(it.qty, it.unitPrice), sortOrder: idx,
+      })));
 
-    const invTotals = computeTotals([lineTotal(1, totals.total.replace(/\.0000$/, ''))], 0, 0);
-    const [inv] = await db.insert(S.invoices).values({
-      invoiceNo: `INV-${new Date().getFullYear()}-0001`, customerId: customerIds[0], projectId: p1 ?? null,
-      quotationId: quo!.id, status: 'partial', currency: 'USD', issueDate: '2026-01-20', dueDate: '2026-02-20',
-      subtotal: invTotals.subtotal, taxAmount: '0', total: invTotals.total, paidTotal: '20000.0000',
-      createdBy: userIds.accountant,
-    }).returning({ id: S.invoices.id });
-    await db.insert(S.invoiceItems).values({
-      invoiceId: inv!.id, description: 'Advance payment — apartment finishing works',
-      qty: '1', unit: 'lot', unitPrice: invTotals.total, lineTotal: invTotals.total, sortOrder: 0,
-    });
-    await db.insert(S.receipts).values({
-      receiptNo: `REC-${new Date().getFullYear()}-0001`, invoiceId: inv!.id, customerId: customerIds[0],
-      amount: '20000.0000', currency: 'USD', method: 'transfer', receivedOn: '2026-01-25',
-      recordedBy: userIds.accountant,
-    });
+      const invTotals = computeTotals([lineTotal(1, totals.total.replace(/\.0000$/, ''))], 0, 0);
+      const [inv] = await db.insert(S.invoices).values({
+        invoiceNo: `INV-${new Date().getFullYear()}-0001`, customerId: customerIds[0], projectId: p1 ?? null,
+        quotationId: quo!.id, status: 'partial', currency: 'USD', issueDate: '2026-01-20', dueDate: '2026-02-20',
+        subtotal: invTotals.subtotal, taxAmount: '0', total: invTotals.total, paidTotal: '20000.0000',
+        createdBy: userIds.accountant,
+      }).returning({ id: S.invoices.id });
+      await db.insert(S.invoiceItems).values({
+        invoiceId: inv!.id, description: 'Advance payment — apartment finishing works',
+        qty: '1', unit: 'lot', unitPrice: invTotals.total, lineTotal: invTotals.total, sortOrder: 0,
+      });
+      await db.insert(S.receipts).values({
+        receiptNo: `REC-${new Date().getFullYear()}-0001`, invoiceId: inv!.id, customerId: customerIds[0],
+        amount: '20000.0000', currency: 'USD', method: 'transfer', receivedOn: '2026-01-25',
+        recordedBy: userIds.accountant,
+      });
+    } else {
+      console.log('Quotation/invoice/receipt data already exists, skipping...');
+    }
   }
 
   // ---- exchange rate (explicitly demo/manual)
@@ -314,7 +320,7 @@ async function main(): Promise<void> {
     fromCurrency: 'USD', toCurrency: 'LBP', rate: '89500.00000000',
     rateDate: new Date().toISOString().slice(0, 10), source: 'DEMO manual entry — replace with verified source',
     enteredBy: userIds.owner ?? null,
-  });
+  }).onConflictDoNothing();
 
   // ---- assignments & attendance (this week)
   if (p1 && personnelIds.length > 3) {
@@ -343,7 +349,7 @@ async function main(): Promise<void> {
     await db.insert(S.workerPayments).values([
       { personnelId: personnelIds[0], projectId: p1 ?? null, type: 'advance', amount: '200.0000', currency: 'USD', paidOn: '2026-02-01', status: 'approved', approvedBy: userIds.accountant, createdBy: userIds.accountant },
       { personnelId: personnelIds[0], projectId: p1 ?? null, type: 'payment', amount: '850.0000', currency: 'USD', paidOn: '2026-02-28', status: 'approved', approvedBy: userIds.accountant, createdBy: userIds.accountant },
-    ]);
+    ]).onConflictDoNothing();
   }
 
   // ---- portfolio (published)

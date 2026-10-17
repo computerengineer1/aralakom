@@ -82,14 +82,98 @@ export function AboutPage() {
   const { company } = usePublicData();
   return (
     <PageContainer>
-      <div style={{ maxWidth: 820, margin: '0 auto' }}>
-        <h1 style={{ textAlign: 'center', marginTop: '1rem' }}>{t('about.title')}</h1>
-        <div className="card" style={{ whiteSpace: 'pre-line', marginBottom: '1.2rem' }}>
+      <div style={{ maxWidth: 920, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '2rem' }}>
+          <img src="/logo.png" alt="AraLakom" style={{ height: 80, borderRadius: '8px', marginBottom: '0.8rem' }} />
+          <h1 style={{ margin: '0 0 0.4rem', fontSize: '2rem' }}>
+            {locale === 'ar' ? 'عن شركة أراكم للمقاولات والتشطيبات' : 'About AraLakom Construction & Contracting'}
+          </h1>
+          <p className="muted" style={{ maxWidth: 650, margin: '0 auto', fontSize: '1.05rem' }}>
+            {company ? (locale === 'ar' ? company.taglineAr : company.taglineEn) : ''}
+          </p>
+        </div>
+
+        <div className="card" style={{ whiteSpace: 'pre-line', marginBottom: '1.8rem', lineHeight: 1.8, fontSize: '1.02rem', padding: '1.8rem' }}>
           {company ? (locale === 'ar' ? company.aboutAr : company.aboutEn) : ''}
         </div>
-        <div className="card">
-          <h2 style={{ fontSize: '1.1rem' }}>{t('about.missionTitle')}</h2>
-          <p className="muted">{t('about.mission')}</p>
+
+        {/* Executive Board */}
+        <div style={{ marginBottom: '2.5rem' }}>
+          <h2 style={{ fontSize: '1.4rem', marginBottom: '1rem', borderBottom: '2px solid var(--gold-500)', paddingBottom: '0.4rem', display: 'inline-block' }}>
+            {locale === 'ar' ? 'مجلس الإدارة وفريق القيادة' : 'Executive Leadership & Management'}
+          </h2>
+
+          {/* Owner & CIO */}
+          <div className="card" style={{
+            background: 'linear-gradient(135deg, var(--navy-900), var(--navy-800))',
+            color: '#fff',
+            padding: '1.8rem',
+            marginBottom: '1.2rem',
+            border: '1px solid var(--gold-500)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1.4rem',
+            flexWrap: 'wrap',
+          }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--gold-400), var(--gold-600))',
+              color: 'var(--navy-900)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.7rem', fontWeight: 900, flexShrink: 0,
+            }}>
+              AR
+            </div>
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <div style={{ background: 'var(--gold-500)', color: '#fff', display: 'inline-block', padding: '0.2rem 0.6rem', borderRadius: 4, fontSize: '0.78rem', fontWeight: 800, marginBottom: '0.3rem' }}>
+                {locale === 'ar' ? 'المالك والمدير التنفيذي للمعلومات' : 'Owner & Chief Information Officer (CIO)'}
+              </div>
+              <h3 style={{ margin: '0 0 0.3rem', color: '#fff', fontSize: '1.35rem' }}>Anwar Rahil (أنور رحيل)</h3>
+              <p style={{ margin: 0, color: '#c7cfda', fontSize: '0.9rem' }}>
+                {locale === 'ar'
+                  ? 'قيادة وإشراف عام على كافة مشاريع التعاقد والبناء، وضمان جودة التنفيذ والالتزام بالعقود والمواصفات.'
+                  : 'Overall executive leadership, technological oversight, and strategic project delivery.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Managers List */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+            {[
+              { name: 'Samer Rahil (سامر رحيل)', roleAr: 'مدير الشؤون المالية والمساندة', roleEn: 'Operations & Projects Manager', init: 'SR' },
+              { name: 'Mahmoud Rahil (محمود رحيل)', roleAr: 'مدير التنسيق الفني والهندسي', roleEn: 'Technical & Engineering Manager', init: 'MR' },
+              { name: 'Rawan Rahil (روان رحيل)', roleAr: 'مديرة العلاقات والتطوير الإداري', roleEn: 'Relations & Administration Manager', init: 'RR' },
+              { name: 'Ashraf Rahil (أشرف رحيل)', roleAr: 'مدير الخدمات الميدانية واللوجستيات', roleEn: 'Field Logistics Manager', init: 'AR' },
+              { name: 'Nader Rahil (نادر رحيل)', roleAr: 'مدير الجودة والمتابعة الميدانية', roleEn: 'Quality Assurance Manager', init: 'NR' },
+              { name: 'Areen Rahil (ارين رحيل)', roleAr: 'مدير العمليات والمشاريع', roleEn: 'Finance & Support Manager', init: 'AR' },
+            ].map((m, idx) => (
+              <div className="card" key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.9rem', padding: '1rem' }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: '50%',
+                  background: 'var(--navy-800)', color: 'var(--gold-400)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 800, fontSize: '0.9rem', flexShrink: 0,
+                }}>
+                  {m.init}
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '0.98rem' }}>{m.name}</h4>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--gold-600)', fontWeight: 700 }}>
+                    {locale === 'ar' ? m.roleAr : m.roleEn}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.6rem' }}>{t('about.missionTitle')}</h2>
+          <p className="muted" style={{ lineHeight: 1.7 }}>{t('about.mission')}</p>
+        </div>
+
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <Link to="/request-quote" className="btn btn-gold btn-lg">{t('nav.requestQuote')}</Link>
         </div>
       </div>
     </PageContainer>
