@@ -149,7 +149,7 @@ export default function Home() {
                   marginBottom: '0.4rem',
                 }}
               >
-                {locale === 'ar' ? 'المالك والمدير التنفيذي للمعلومات (Owner & CEO)' : 'Owner & Chief Information Officer (CIO)'}
+                {locale === 'ar' ? 'المالك والرئيس التنفيذي (Owner & CEO)' : 'Owner & CEO'}
               </div>
               <h3 style={{ margin: '0 0 0.4rem', color: '#fff', fontSize: '1.5rem' }}>
                 Anwar Rahil (أنور رحيل)
@@ -167,18 +167,21 @@ export default function Home() {
               <a href="mailto:aralakomm@gmail.com" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.4)' }}>
                 <IconMail size={14} /> <span dir="ltr">aralakomm@gmail.com</span>
               </a>
+              <a href="mailto:aralakom@hotmail.com" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.4)' }}>
+                <IconMail size={14} /> <span dir="ltr">aralakom@hotmail.com</span>
+              </a>
             </div>
           </div>
 
           {/* Managers Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem' }}>
             {[
-              { name: 'Samer Rahil (سامر رحيل)', roleAr: 'مديرة الشؤون المالية والمساندة', roleEn: 'Operations & Projects Manager', initial: 'SR' },
+              { name: 'Samer Rahil (سامر رحيل)', roleAr: 'مدير الشؤون المالية والدعم', roleEn: 'Finance & Support Manager', initial: 'SR' },
+              { name: 'Aren Rahil (آرين رحيل)', roleAr: 'مدير العمليات وإدارة المشاريع', roleEn: 'Operations & Projects Manager', initial: 'AR' },
               { name: 'Mahmoud Rahil (محمود رحيل)', roleAr: 'مدير التنسيق الفني والهندسي', roleEn: 'Technical & Engineering Manager', initial: 'MR' },
               { name: 'Rawan Rahil (روان رحيل)', roleAr: 'مديرة العلاقات والتطوير الإداري', roleEn: 'Relations & Administration Manager', initial: 'RR' },
               { name: 'Ashraf Rahil (أشرف رحيل)', roleAr: 'مدير الخدمات الميدانية واللوجستيات', roleEn: 'Field Logistics Manager', initial: 'AR' },
               { name: 'Nader Rahil (نادر رحيل)', roleAr: 'مدير الجودة والمتابعة الميدانية', roleEn: 'Quality Assurance Manager', initial: 'NR' },
-              { name: 'Areen Rahil (ارين رحيل)', roleAr: 'مدير العمليات والمشاريع', roleEn: 'Finance & Support Manager', initial: 'AR' },
             ].map((m, idx) => (
               <div
                 className="card manager-card"

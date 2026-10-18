@@ -123,10 +123,10 @@ function Footer() {
           </p>
           <div style={{ marginTop: '0.6rem', fontSize: '0.88rem' }}>
             <div style={{ marginBottom: '0.3rem' }}>
-              <strong style={{ color: 'var(--gold-400)' }}>{locale === 'ar' ? 'المالك والمدير التنفيذي للمعلومات (Owner & CEO):' : 'Owner & CIO:'}</strong> Anwar Rahil (أنور رحيل)
+              <strong style={{ color: 'var(--gold-400)' }}>{locale === 'ar' ? 'المالك والرئيس التنفيذي (Owner & CEO):' : 'Owner & CEO:'}</strong> Anwar Rahil (أنور رحيل)
             </div>
             <div style={{ fontSize: '0.82rem', color: '#a3aebb' }}>
-              <span className="ltr-span" dir="ltr">+961 70 078 473</span> · <a href="mailto:aralakomm@gmail.com" style={{ color: '#fff' }}><span dir="ltr">aralakomm@gmail.com</span></a>
+              <span className="ltr-span" dir="ltr">+961 70 078 473</span> · <a href="mailto:aralakomm@gmail.com" style={{ color: '#fff' }}><span dir="ltr">aralakomm@gmail.com</span></a> · <a href="mailto:aralakom@hotmail.com" style={{ color: '#fff' }}><span dir="ltr">aralakom@hotmail.com</span></a>
             </div>
           </div>
         </div>

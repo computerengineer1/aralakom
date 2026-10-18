@@ -126,13 +126,13 @@ export function AboutPage() {
             </div>
             <div style={{ flex: 1, minWidth: 260 }}>
               <div style={{ background: 'var(--gold-500)', color: '#fff', display: 'inline-block', padding: '0.2rem 0.6rem', borderRadius: 4, fontSize: '0.78rem', fontWeight: 800, marginBottom: '0.3rem' }}>
-                {locale === 'ar' ? 'المالك والمدير التنفيذي للمعلومات' : 'Owner & Chief Information Officer (CIO)'}
+                {locale === 'ar' ? 'المالك والرئيس التنفيذي (Owner & CEO)' : 'Owner & CEO'}
               </div>
               <h3 style={{ margin: '0 0 0.3rem', color: '#fff', fontSize: '1.35rem' }}>Anwar Rahil (أنور رحيل)</h3>
               <p style={{ margin: 0, color: '#c7cfda', fontSize: '0.9rem' }}>
                 {locale === 'ar'
                   ? 'قيادة وإشراف عام على كافة مشاريع التعاقد والبناء، وضمان جودة التنفيذ والالتزام بالعقود والمواصفات.'
-                  : 'Overall executive leadership, technological oversight, and strategic project delivery.'}
+                  : 'Overall executive leadership, strategic direction, and uncompromising project delivery.'}
               </p>
             </div>
           </div>
@@ -140,12 +140,12 @@ export function AboutPage() {
           {/* Managers List */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
             {[
-              { name: 'Samer Rahil (سامر رحيل)', roleAr: 'مدير الشؤون المالية والمساندة', roleEn: 'Operations & Projects Manager', init: 'SR' },
+              { name: 'Samer Rahil (سامر رحيل)', roleAr: 'مدير الشؤون المالية والدعم', roleEn: 'Finance & Support Manager', init: 'SR' },
+              { name: 'Aren Rahil (آرين رحيل)', roleAr: 'مدير العمليات وإدارة المشاريع', roleEn: 'Operations & Projects Manager', init: 'AR' },
               { name: 'Mahmoud Rahil (محمود رحيل)', roleAr: 'مدير التنسيق الفني والهندسي', roleEn: 'Technical & Engineering Manager', init: 'MR' },
               { name: 'Rawan Rahil (روان رحيل)', roleAr: 'مديرة العلاقات والتطوير الإداري', roleEn: 'Relations & Administration Manager', init: 'RR' },
               { name: 'Ashraf Rahil (أشرف رحيل)', roleAr: 'مدير الخدمات الميدانية واللوجستيات', roleEn: 'Field Logistics Manager', init: 'AR' },
               { name: 'Nader Rahil (نادر رحيل)', roleAr: 'مدير الجودة والمتابعة الميدانية', roleEn: 'Quality Assurance Manager', init: 'NR' },
-              { name: 'Areen Rahil (ارين رحيل)', roleAr: 'مدير العمليات والمشاريع', roleEn: 'Finance & Support Manager', init: 'AR' },
             ].map((m, idx) => (
               <div className="card" key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.9rem', padding: '1rem' }}>
                 <div style={{

@@ -174,8 +174,8 @@ export function registerAuthRoutes(app: FastifyInstance): void {
       language: body.locale,
     }).returning({ id: customers.id });
 
-    // Determine role (if aralakomm@gmail.com -> owner; otherwise customer)
-    const isOwner = email === 'aralakomm@gmail.com';
+    // Determine role (if aralakomm@gmail.com or aralakom@hotmail.com -> owner; otherwise customer)
+    const isOwner = email === 'aralakomm@gmail.com' || email === 'aralakom@hotmail.com';
     const role = isOwner ? 'owner' : 'customer';
 
     const [newUser] = await db.insert(users).values({
@@ -274,7 +274,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
       }
       await db.update(users).set({ failedLoginCount: 0, lockedUntil: null, lastLoginAt: new Date() }).where(eq(users.id, user.id));
     } else {
-      const isOwner = email === 'aralakomm@gmail.com';
+      const isOwner = email === 'aralakomm@gmail.com' || email === 'aralakom@hotmail.com';
       const role = isOwner ? 'owner' : 'customer';
       const randomPw = await hashPassword(randomToken(24));
 

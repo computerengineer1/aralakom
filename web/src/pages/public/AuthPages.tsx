@@ -288,7 +288,7 @@ export function LoginPage() {
                     autoComplete="username"
                     dir="ltr"
                     required
-                    placeholder="user@example.com / aralakomm@gmail.com"
+                    placeholder="aralakomm@gmail.com / aralakom@hotmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
