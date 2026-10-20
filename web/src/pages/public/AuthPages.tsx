@@ -39,7 +39,7 @@ export function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [showDirectGoogleModal, setShowDirectGoogleModal] = useState(false);
-  const [googleDirectEmail, setGoogleDirectEmail] = useState('aralakomm@gmail.com');
+  const [googleDirectEmail, setGoogleDirectEmail] = useState('Anwar_m_rahil@hotmail.com');
   const [googleDirectName, setGoogleDirectName] = useState('Anwar Rahil');
 
   if (user) {
@@ -288,7 +288,7 @@ export function LoginPage() {
                     autoComplete="username"
                     dir="ltr"
                     required
-                    placeholder="aralakomm@gmail.com / aralakom@hotmail.com"
+                    placeholder="Anwar_m_rahil@hotmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />

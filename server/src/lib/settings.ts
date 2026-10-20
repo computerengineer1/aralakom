@@ -41,7 +41,7 @@ export const DEFAULT_COMPANY: CompanyProfile = {
   aboutAr: 'شركة أراكم للمقاولات والتشطيبات (AraLakom) شركة رائدة متخصصة في أعمال البناء والمقاولات العامة والتشطيبات الفاخرة في لبنان، بإشراف المالك والرئيس التنفيذي أنور رحيل (Owner & CEO) وفريق الإدارة التنفيذي. نقدم حلولاً متكاملة تشمل التشييد، الترميم، الديكورات الجبسية، أعمال الدهان والبلاط، التمديدات الكهربائية والصحية، وإدارة المشاريع بأعلى معايير الإتقان والموثوقية.',
   phone: '+961 70 078 473',
   whatsapp: '+961 70 078 473',
-  email: 'aralakomm@gmail.com · aralakom@hotmail.com',
+  email: 'Anwar_m_rahil@hotmail.com',
   addressEn: 'sour south Lebanon',
   addressAr: 'صور جنوب لبنان',
   workingHoursEn: 'Mon–Sat 8:00 AM – 6:00 PM',

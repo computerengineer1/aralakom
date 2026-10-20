@@ -164,11 +164,11 @@ export default function Home() {
               <a href="tel:+96170078473" className="btn btn-gold btn-sm" style={{ color: '#fff' }}>
                 <IconPhone size={14} /> <span className="ltr-span" dir="ltr">+961 70 078 473</span>
               </a>
+              <a href="mailto:Anwar_m_rahil@hotmail.com" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.4)' }}>
+                <IconMail size={14} /> <span dir="ltr">Anwar_m_rahil@hotmail.com</span>
+              </a>
               <a href="mailto:aralakomm@gmail.com" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.4)' }}>
                 <IconMail size={14} /> <span dir="ltr">aralakomm@gmail.com</span>
-              </a>
-              <a href="mailto:aralakom@hotmail.com" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.4)' }}>
-                <IconMail size={14} /> <span dir="ltr">aralakom@hotmail.com</span>
               </a>
             </div>
           </div>

@@ -126,7 +126,7 @@ function Footer() {
               <strong style={{ color: 'var(--gold-400)' }}>{locale === 'ar' ? 'المالك والرئيس التنفيذي (Owner & CEO):' : 'Owner & CEO:'}</strong> Anwar Rahil (أنور رحيل)
             </div>
             <div style={{ fontSize: '0.82rem', color: '#a3aebb' }}>
-              <span className="ltr-span" dir="ltr">+961 70 078 473</span> · <a href="mailto:aralakomm@gmail.com" style={{ color: '#fff' }}><span dir="ltr">aralakomm@gmail.com</span></a> · <a href="mailto:aralakom@hotmail.com" style={{ color: '#fff' }}><span dir="ltr">aralakom@hotmail.com</span></a>
+              <span className="ltr-span" dir="ltr">+961 70 078 473</span> · <a href="mailto:Anwar_m_rahil@hotmail.com" style={{ color: '#fff' }}><span dir="ltr">Anwar_m_rahil@hotmail.com</span></a> · <a href="mailto:aralakomm@gmail.com" style={{ color: '#fff' }}><span dir="ltr">aralakomm@gmail.com</span></a>
             </div>
           </div>
         </div>

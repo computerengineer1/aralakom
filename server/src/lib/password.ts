@@ -26,7 +26,7 @@ const COMMON = new Set([
 /** Basic strength policy; document that stronger policies can be layered via config. */
 export function validatePasswordStrength(pw: string): PasswordIssues[] {
   const issues: PasswordIssues[] = [];
-  if (pw.length < 10) issues.push({ code: 'too_short' });
+  if (pw.length < 8) issues.push({ code: 'too_short' });
   if (pw.length > 128) issues.push({ code: 'too_long' });
   if (!/[A-Za-z\u0600-\u06FF]/.test(pw)) issues.push({ code: 'no_letters' });
   if (!/[0-9]/.test(pw)) issues.push({ code: 'no_digits' });
