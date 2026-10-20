@@ -140,6 +140,7 @@ export function AboutPage() {
           {/* Managers List */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
             {[
+              { name: 'Boshra Rahil (بشرى رحيل)', roleAr: 'مساعدة الرئيس التنفيذي (CEO Helper)', roleEn: 'CEO Helper', init: 'BR' },
               { name: 'Samer Rahil (سامر رحيل)', roleAr: 'مدير الشؤون المالية والدعم', roleEn: 'Finance & Support Manager', init: 'SR' },
               { name: 'Aren Rahil (آرين رحيل)', roleAr: 'مدير العمليات وإدارة المشاريع', roleEn: 'Operations & Projects Manager', init: 'AR' },
               { name: 'Mahmoud Rahil (محمود رحيل)', roleAr: 'مدير التنسيق الفني والهندسي', roleEn: 'Technical & Engineering Manager', init: 'MR' },
@@ -184,6 +185,7 @@ export function ContactPage() {
   const { t } = useTranslation();
   const [locale] = useLocale();
   const { company } = usePublicData();
+  const email = company?.email || 'aralakom@hotmail.com';
   return (
     <PageContainer>
       <div className="section-head" style={{ marginTop: '1rem' }}>
@@ -191,13 +193,16 @@ export function ContactPage() {
         <p>{t('contact.subtitle')}</p>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1rem', maxWidth: 980, margin: '0 auto' }}>
-        {company?.phone && (
-          <a className="card" href={`tel:${company.phone.replace(/\s/g, '')}`} style={{ display: 'block' }}>
-            <span style={{ color: 'var(--gold-500)' }}><IconPhone size={22} /></span>
-            <h3 style={{ margin: '0.4rem 0 0.1rem', fontSize: '0.95rem' }}>{t('contact.phone')}</h3>
-            <span className="ltr-span" dir="ltr">{company.phone}</span>
-          </a>
-        )}
+        <a className="card" href="tel:+96170078473" style={{ display: 'block' }}>
+          <span style={{ color: 'var(--gold-500)' }}><IconPhone size={22} /></span>
+          <h3 style={{ margin: '0.4rem 0 0.1rem', fontSize: '0.95rem' }}>{locale === 'ar' ? 'هاتف (لبنان)' : 'Phone (Lebanon)'}</h3>
+          <span className="ltr-span" dir="ltr">+961 70 078 473</span>
+        </a>
+        <a className="card" href="tel:+3118504563" style={{ display: 'block' }}>
+          <span style={{ color: 'var(--gold-500)' }}><IconPhone size={22} /></span>
+          <h3 style={{ margin: '0.4rem 0 0.1rem', fontSize: '0.95rem' }}>{locale === 'ar' ? 'هاتف (دولي / هولندا)' : 'Phone (International)'}</h3>
+          <span className="ltr-span" dir="ltr">+31 18504563</span>
+        </a>
         {company?.whatsapp && (
           <a className="card" href={`https://wa.me/${company.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer noopener" style={{ display: 'block' }}>
             <span style={{ color: 'var(--gold-500)' }}><IconPhone size={22} /></span>
@@ -205,13 +210,11 @@ export function ContactPage() {
             <span className="ltr-span" dir="ltr">{company.whatsapp}</span>
           </a>
         )}
-        {company?.email && (
-          <a className="card" href={`mailto:${company.email}`} style={{ display: 'block' }}>
-            <span style={{ color: 'var(--gold-500)' }}><IconMail size={22} /></span>
-            <h3 style={{ margin: '0.4rem 0 0.1rem', fontSize: '0.95rem' }}>{t('contact.email')}</h3>
-            <span dir="ltr">{company.email}</span>
-          </a>
-        )}
+        <a className="card" href={`mailto:${email}`} style={{ display: 'block' }}>
+          <span style={{ color: 'var(--gold-500)' }}><IconMail size={22} /></span>
+          <h3 style={{ margin: '0.4rem 0 0.1rem', fontSize: '0.95rem' }}>{t('contact.email')}</h3>
+          <span dir="ltr">{email}</span>
+        </a>
         <div className="card">
           <span style={{ color: 'var(--gold-500)' }}><IconPin size={22} /></span>
           <h3 style={{ margin: '0.4rem 0 0.1rem', fontSize: '0.95rem' }}>{t('contact.address')}</h3>

@@ -160,15 +160,18 @@ export default function Home() {
                   : 'Leading AraLakom with a strategic vision that blends genuine Lebanese craftsmanship with state-of-the-art engineering and transparent management.'}
               </p>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 200 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', minWidth: 210 }}>
               <a href="tel:+96170078473" className="btn btn-gold btn-sm" style={{ color: '#fff' }}>
                 <IconPhone size={14} /> <span className="ltr-span" dir="ltr">+961 70 078 473</span>
+              </a>
+              <a href="tel:+3118504563" className="btn btn-gold btn-sm" style={{ color: '#fff' }}>
+                <IconPhone size={14} /> <span className="ltr-span" dir="ltr">+31 18504563</span>
               </a>
               <a href="https://wa.me/96170078473" target="_blank" rel="noreferrer noopener" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.4)' }}>
                 <span style={{ color: '#25D366' }}>💬</span> <span className="ltr-span" dir="ltr">WhatsApp</span>
               </a>
-              <a href="mailto:aralakomm@gmail.com" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.4)' }}>
-                <IconMail size={14} /> <span dir="ltr">aralakomm@gmail.com</span>
+              <a href="mailto:aralakom@hotmail.com" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.4)' }}>
+                <IconMail size={14} /> <span dir="ltr">aralakom@hotmail.com</span>
               </a>
             </div>
           </div>
@@ -176,6 +179,7 @@ export default function Home() {
           {/* Managers Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem' }}>
             {[
+              { name: 'Boshra Rahil (بشرى رحيل)', roleAr: 'مساعدة الرئيس التنفيذي (CEO Helper)', roleEn: 'CEO Helper', initial: 'BR' },
               { name: 'Samer Rahil (سامر رحيل)', roleAr: 'مدير الشؤون المالية والدعم', roleEn: 'Finance & Support Manager', initial: 'SR' },
               { name: 'Aren Rahil (آرين رحيل)', roleAr: 'مدير العمليات وإدارة المشاريع', roleEn: 'Operations & Projects Manager', initial: 'AR' },
               { name: 'Mahmoud Rahil (محمود رحيل)', roleAr: 'مدير التنسيق الفني والهندسي', roleEn: 'Technical & Engineering Manager', initial: 'MR' },
