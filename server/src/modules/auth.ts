@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, ilike } from 'drizzle-orm';
 import { z } from 'zod';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
@@ -81,7 +81,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
     const email = body.email.toLowerCase();
 
     const [user] = await db.select().from(users)
-      .where(and(eq(users.email, email), isNull(users.deletedAt)))
+      .where(and(ilike(users.email, email), isNull(users.deletedAt)))
       .limit(1);
     // Generic response regardless of existence (no account enumeration).
     const genericError = () => {
@@ -159,7 +159,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
     if (issues.length > 0) throw badRequest('WEAK_PASSWORD', 'Password does not meet the security policy', issues);
 
     const [existing] = await db.select({ id: users.id }).from(users)
-      .where(and(eq(users.email, email), isNull(users.deletedAt))).limit(1);
+      .where(and(ilike(users.email, email), isNull(users.deletedAt))).limit(1);
     if (existing) {
       throw new HttpError(409, 'EMAIL_EXISTS', 'An account with this email address already exists');
     }
@@ -286,7 +286,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
     const body = parseWith(forgotSchema, req.body);
     const db = req.db;
     const email = body.email.toLowerCase();
-    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    const [user] = await db.select().from(users).where(ilike(users.email, email)).limit(1);
     // Always the same response — never reveal account existence.
     if (user && !user.deletedAt && user.status === 'active') {
       const token = randomToken(32);
