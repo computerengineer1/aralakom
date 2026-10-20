@@ -18,7 +18,6 @@ interface AuthState {
   loading: boolean;
   login: (email: string, password: string, totp?: string) => Promise<{ mfaRequired?: boolean }>;
   register: (fullName: string, email: string, password: string, phone?: string) => Promise<void>;
-  googleAuth: (payload: { credential?: string; email?: string; name?: string }) => Promise<void>;
   verifyMfa: (code: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -82,19 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.user.locale && !localStorage.getItem('lcmp_lang')) setLocale(res.user.locale as Loc);
     }
   }, []);
-
-  const googleAuth = useCallback(async (payload: { credential?: string; email?: string; name?: string }) => {
-    const res = await api<{ user: Me }>('/api/auth/google', {
-      method: 'POST',
-      body: payload,
-    });
-    await refreshCsrf();
-    if (res.user) {
-      setUser(res.user);
-      if (res.user.locale && !localStorage.getItem('lcmp_lang')) setLocale(res.user.locale as Loc);
-    }
-  }, []);
-
   const verifyMfa = useCallback(async (code: string) => {
     await api('/api/auth/mfa/verify', { method: 'POST', body: { code } });
     await refreshCsrf();
@@ -113,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, googleAuth, verifyMfa, logout, refresh, can }}>
+    <AuthContext.Provider value={{ user, loading, login, register, verifyMfa, logout, refresh, can }}>
       {children}
     </AuthContext.Provider>
   );

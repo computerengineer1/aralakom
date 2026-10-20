@@ -126,7 +126,7 @@ function Footer() {
               <strong style={{ color: 'var(--gold-400)' }}>{locale === 'ar' ? 'المالك والرئيس التنفيذي (Owner & CEO):' : 'Owner & CEO:'}</strong> Anwar Rahil (أنور رحيل)
             </div>
             <div style={{ fontSize: '0.82rem', color: '#a3aebb' }}>
-              <span className="ltr-span" dir="ltr">+961 70 078 473</span> · <a href="mailto:Anwar_m_rahil@hotmail.com" style={{ color: '#fff' }}><span dir="ltr">Anwar_m_rahil@hotmail.com</span></a> · <a href="mailto:aralakomm@gmail.com" style={{ color: '#fff' }}><span dir="ltr">aralakomm@gmail.com</span></a>
+              <span className="ltr-span" dir="ltr">+961 70 078 473</span> · <a href="mailto:aralakomm@gmail.com" style={{ color: '#fff' }}><span dir="ltr">aralakomm@gmail.com</span></a>
             </div>
           </div>
         </div>
@@ -146,6 +146,9 @@ function Footer() {
           <Link to="/privacy">{t('footer.privacy')}</Link>
           <Link to="/terms">{t('footer.terms')}</Link>
           <Link to="/login">{t('nav.login')}</Link>
+          <Link to="/portal" style={{ opacity: 0.75, fontSize: '0.8rem', color: 'var(--gold-400)' }}>
+            🔒 {locale === 'ar' ? 'بوابة الإدارة والتحكم' : 'Staff Portal'}
+          </Link>
           <h4 style={{ marginTop: '1.2rem' }}>{t('footer.workingHours')}</h4>
           <span style={{ fontSize: '0.85rem', color: '#c7cfda' }}>
             {locale === 'ar' ? company?.workingHoursAr : company?.workingHoursEn}

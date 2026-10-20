@@ -102,7 +102,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
     const ok = await verifyPassword(body.password, user!.passwordHash);
     if (!ok) {
       const fails = user!.failedLoginCount + 1;
-      const lock = fails >= 10 ? new Date(Date.now() + 15 * 60 * 1000) : null;
+      const lock = fails >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null;
       await db.update(users).set({ failedLoginCount: fails, lockedUntil: lock }).where(eq(users.id, user!.id));
       genericError();
     }
@@ -174,9 +174,8 @@ export function registerAuthRoutes(app: FastifyInstance): void {
       language: body.locale,
     }).returning({ id: customers.id });
 
-    // Determine role (only Anwar_m_rahil@hotmail.com is owner; otherwise customer)
-    const isOwner = email.toLowerCase() === 'anwar_m_rahil@hotmail.com';
-    const role = isOwner ? 'owner' : 'customer';
+    // Public self-registration ALWAYS creates customer accounts. Staff accounts (owner/managers) are pre-provisioned securely.
+    const role = 'customer';
 
     const [newUser] = await db.insert(users).values({
       email,
@@ -207,114 +206,6 @@ export function registerAuthRoutes(app: FastifyInstance): void {
     };
   });
 
-  const googleAuthSchema = z.object({
-    credential: z.string().optional(),
-    email: z.string().email().optional(),
-    name: z.string().optional(),
-    sub: z.string().optional(),
-    picture: z.string().optional(),
-  });
-
-  app.post('/api/auth/google', {
-    config: { rateLimit: { max: 30, timeWindow: '15 minutes' } },
-  }, async (req, reply) => {
-    const body = parseWith(googleAuthSchema, req.body);
-    const db = req.db;
-    let email: string | undefined = body.email;
-    let name: string | undefined = body.name;
-
-    if (body.credential) {
-      try {
-        const resp = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(body.credential)}`);
-        if (resp.ok) {
-          const payload = (await resp.json()) as { email?: string; name?: string };
-          if (payload.email) {
-            email = payload.email;
-            name = payload.name || name;
-          }
-        } else {
-          const parts = body.credential.split('.');
-          if (parts.length === 3 && parts[1]) {
-            const json = Buffer.from(parts[1], 'base64url').toString('utf8');
-            const parsed = JSON.parse(json) as { email?: string; name?: string };
-            if (parsed.email) {
-              email = parsed.email;
-              name = parsed.name || name;
-            }
-          }
-        }
-      } catch {
-        const parts = body.credential.split('.');
-        if (parts.length === 3 && parts[1]) {
-          try {
-            const json = Buffer.from(parts[1], 'base64url').toString('utf8');
-            const parsed = JSON.parse(json) as { email?: string; name?: string };
-            if (parsed.email) {
-              email = parsed.email;
-              name = parsed.name || name;
-            }
-          } catch { /* ignore fallback */ }
-        }
-      }
-    }
-
-    if (!email) {
-      throw badRequest('INVALID_GOOGLE_TOKEN', 'Could not verify Google account');
-    }
-
-    email = email.toLowerCase().trim();
-    name = (name || email.split('@')[0] || 'User').trim();
-
-    let [user] = await db.select().from(users)
-      .where(and(eq(users.email, email), isNull(users.deletedAt))).limit(1);
-
-    if (user) {
-      if (user.status !== 'active') {
-        throw new HttpError(403, 'ACCOUNT_DISABLED', 'This account is disabled. Contact support.');
-      }
-      await db.update(users).set({ failedLoginCount: 0, lockedUntil: null, lastLoginAt: new Date() }).where(eq(users.id, user.id));
-    } else {
-      // Determine role (only Anwar_m_rahil@hotmail.com is owner; otherwise customer)
-      const isOwner = email.toLowerCase() === 'anwar_m_rahil@hotmail.com';
-      const role = isOwner ? 'owner' : 'customer';
-      const randomPw = await hashPassword(randomToken(24));
-
-      const [cust] = await db.insert(customers).values({
-        name,
-        email,
-        language: 'ar',
-      }).returning({ id: customers.id });
-
-      const [created] = await db.insert(users).values({
-        email,
-        fullName: name,
-        passwordHash: randomPw,
-        role,
-        status: 'active',
-        locale: 'ar',
-        customerId: cust?.id ?? null,
-      }).returning();
-      user = created;
-    }
-
-    const s = await createSession(db, req, user!.id, true);
-    reply.setCookie(SESSION_COOKIE_NAME, s.token, cookieOptions(config.sessionTtlHours * 3600));
-    reply.setCookie(CSRF_COOKIE, s.csrf, cookieOptions(config.sessionTtlHours * 3600));
-
-    void auditFromReq(req, db)('auth.google_login_success', undefined, {}, { actorId: user!.id, actorEmail: user!.email });
-
-    return {
-      ok: true,
-      user: {
-        id: user!.id,
-        email: user!.email,
-        fullName: user!.fullName,
-        role: user!.role,
-        locale: user!.locale,
-        mfaEnabled: user!.mfaEnabled,
-      },
-    };
-  });
 
   app.post('/api/auth/mfa/verify', async (req, reply) => {
     const user = req.user;

@@ -498,15 +498,20 @@ html[dir="rtl"] .timeline li { padding: 0 1.6rem 1.2rem 0; }
   box-shadow: 0 16px 40px rgba(14, 34, 55, 0.15);
   animation: fadeIn 0.35s ease-out;
 }
-
-.google-btn:hover {
-  background: #f8fafc !important;
-  border-color: #cbd5e1 !important;
-  transform: translateY(-1px);
+.portal-card {
+  animation: fadeIn 0.4s ease-out;
+  position: relative;
+  overflow: hidden;
 }
 
-.google-btn:active {
-  transform: translateY(0);
+.portal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
 }
 
 /* Floating WhatsApp Button */

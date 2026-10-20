@@ -1,29 +1,15 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth, useLocale } from '../../lib/auth';
-import { ApiError } from '../../lib/api';
+import { ApiError, api } from '../../lib/api';
 import { Button, Field, TextInput } from '../../components/ui';
 import { PageContainer } from '../../layouts/PublicLayout';
-
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (options: { client_id: string; callback: (res: { credential: string }) => void }) => void;
-          prompt: () => void;
-          renderButton: (element: HTMLElement, options: object) => void;
-        };
-      };
-    };
-  }
-}
 
 export function LoginPage() {
   const { t } = useTranslation();
   const [locale] = useLocale();
-  const { login, register, googleAuth, verifyMfa, user } = useAuth();
+  const { login, register, verifyMfa, user } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
@@ -37,74 +23,10 @@ export function LoginPage() {
   const [mfaRequired, setMfaRequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [googleBusy, setGoogleBusy] = useState(false);
-  const [showDirectGoogleModal, setShowDirectGoogleModal] = useState(false);
-  const [googleDirectEmail, setGoogleDirectEmail] = useState('Anwar_m_rahil@hotmail.com');
-  const [googleDirectName, setGoogleDirectName] = useState('Anwar Rahil');
 
   if (user) {
     navigate(params.get('next') || '/app', { replace: true });
   }
-
-  // Load Google Identity Services script if not already present
-  useEffect(() => {
-    if (document.getElementById('google-gsi-script')) return;
-    const script = document.createElement('script');
-    script.id = 'google-gsi-script';
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-  }, []);
-
-  const handleGoogleSignIn = async () => {
-    setError(null);
-    setGoogleBusy(true);
-
-    // Try Google GIS if initialized with client ID
-    if (window.google?.accounts?.id) {
-      try {
-        window.google.accounts.id.initialize({
-          client_id: '710000000000-dummy.apps.googleusercontent.com',
-          callback: async (res) => {
-            try {
-              await googleAuth({ credential: res.credential });
-              navigate(params.get('next') || '/app');
-            } catch (err) {
-              setError((err as ApiError).message || t('auth.invalid'));
-            }
-          },
-        });
-        window.google.accounts.id.prompt();
-      } catch {
-        // Fallback to Google Account prompt
-        setShowDirectGoogleModal(true);
-      } finally {
-        setGoogleBusy(false);
-      }
-    } else {
-      setShowDirectGoogleModal(true);
-      setGoogleBusy(false);
-    }
-  };
-
-  const submitDirectGoogle = async (e: FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setGoogleBusy(true);
-    try {
-      await googleAuth({
-        email: googleDirectEmail,
-        name: googleDirectName || googleDirectEmail.split('@')[0],
-      });
-      setShowDirectGoogleModal(false);
-      navigate(params.get('next') || '/app');
-    } catch (err) {
-      setError((err as ApiError).message || t('auth.invalid'));
-    } finally {
-      setGoogleBusy(false);
-    }
-  };
 
   const submitLogin = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
@@ -236,48 +158,6 @@ export function LoginPage() {
 
         {!mfaRequired ? (
           <>
-            {/* Google Authentication Button */}
-            <div style={{ marginBottom: '1.2rem' }}>
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                disabled={googleBusy || busy}
-                className="google-btn"
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.75rem',
-                  padding: '0.65rem 1rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--slate-300)',
-                  background: '#ffffff',
-                  color: 'var(--slate-800)',
-                  fontWeight: 600,
-                  fontSize: '0.92rem',
-                  cursor: 'pointer',
-                  boxShadow: 'var(--shadow-sm)',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                <svg viewBox="0 0 24 24" width="20" height="20" style={{ flexShrink: 0 }}>
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                </svg>
-                <span>{googleBusy ? t('auth.loggingIn') : t('auth.googleSignIn')}</span>
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', color: 'var(--slate-500)', fontSize: '0.82rem' }}>
-              <div style={{ flex: 1, height: '1px', background: 'var(--slate-200)' }} />
-              <span style={{ padding: '0 0.8rem' }}>{t('auth.orDivider')}</span>
-              <div style={{ flex: 1, height: '1px', background: 'var(--slate-200)' }} />
-            </div>
-
             {mode === 'login' ? (
               /* LOGIN FORM */
               <form onSubmit={(e) => void submitLogin(e)} noValidate>
@@ -288,7 +168,7 @@ export function LoginPage() {
                     autoComplete="username"
                     dir="ltr"
                     required
-                    placeholder="Anwar_m_rahil@hotmail.com"
+                    placeholder="user@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -299,106 +179,98 @@ export function LoginPage() {
                     id="password"
                     type="password"
                     autoComplete="current-password"
+                    dir="ltr"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </Field>
 
-                <Button type="submit" busy={busy} className="btn-block btn-primary" style={{ marginTop: '0.5rem' }}>
-                  {busy ? t('auth.loggingIn') : t('auth.signIn')}
-                </Button>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                  <Link to="/forgot-password" className="small" style={{ color: 'var(--navy-700)' }}>
-                    {t('auth.forgot')}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                  <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--gold-600)' }}>
+                    {t('auth.forgotPassword')}
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => { setMode('register'); setError(null); }}
-                    className="small"
-                    style={{ background: 'none', border: 'none', color: 'var(--gold-600)', cursor: 'pointer', fontWeight: 600 }}
-                  >
-                    {t('auth.noAccount')}
-                  </button>
                 </div>
+
+                <Button type="submit" busy={busy} className="btn-block btn-primary btn-gold-gradient">
+                  {t('auth.submitLogin')}
+                </Button>
               </form>
             ) : (
-              /* REGISTER FORM */
+              /* REGISTRATION FORM */
               <form onSubmit={(e) => void submitRegister(e)} noValidate>
-                <Field label={t('auth.fullName')} htmlFor="reg-name" required>
+                <Field label={locale === 'ar' ? 'الاسم الكامل' : 'Full Name'} htmlFor="fullName" required>
                   <TextInput
-                    id="reg-name"
+                    id="fullName"
                     type="text"
                     required
-                    placeholder={locale === 'ar' ? 'أنور رحيل' : 'John Doe'}
+                    autoComplete="name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                   />
                 </Field>
 
-                <Field label={t('auth.email')} htmlFor="reg-email" required>
+                <Field label={t('auth.email')} htmlFor="regEmail" required>
                   <TextInput
-                    id="reg-email"
+                    id="regEmail"
                     type="email"
-                    autoComplete="username"
+                    autoComplete="email"
                     dir="ltr"
                     required
-                    placeholder="user@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </Field>
 
-                <Field label={t('auth.phone')} htmlFor="reg-phone">
+                <Field label={locale === 'ar' ? 'رقم الهاتف' : 'Phone Number'} htmlFor="regPhone">
                   <TextInput
-                    id="reg-phone"
+                    id="regPhone"
                     type="tel"
                     dir="ltr"
-                    placeholder="+961 70 078 473"
+                    autoComplete="tel"
+                    placeholder="+961..."
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                   />
                 </Field>
 
-                <Field label={t('auth.password')} htmlFor="reg-password" required hint={t('auth.pwPolicy')}>
+                <Field label={t('auth.password')} htmlFor="regPassword" required hint={t('auth.pwPolicy')}>
                   <TextInput
-                    id="reg-password"
+                    id="regPassword"
                     type="password"
                     autoComplete="new-password"
+                    dir="ltr"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </Field>
 
-                <Field label={t('auth.confirmPassword')} htmlFor="reg-confirm" required>
+                <Field label={t('auth.confirmPassword')} htmlFor="confirmPassword" required>
                   <TextInput
-                    id="reg-confirm"
+                    id="confirmPassword"
                     type="password"
                     autoComplete="new-password"
+                    dir="ltr"
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                 </Field>
 
-                <Button type="submit" busy={busy} className="btn-block btn-gold" style={{ marginTop: '0.5rem' }}>
-                  {busy ? t('auth.registering') : t('auth.signUp')}
+                <Button type="submit" busy={busy} className="btn-block btn-primary btn-gold-gradient" style={{ marginTop: '0.6rem' }}>
+                  {t('auth.submitRegister')}
                 </Button>
-
-                <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                  <button
-                    type="button"
-                    onClick={() => { setMode('login'); setError(null); }}
-                    className="small"
-                    style={{ background: 'none', border: 'none', color: 'var(--navy-700)', cursor: 'pointer', fontWeight: 600 }}
-                  >
-                    {t('auth.haveAccount')}
-                  </button>
-                </div>
               </form>
             )}
+
+            {/* Discreet Management Portal Link */}
+            <div style={{ marginTop: '1.6rem', textAlign: 'center', borderTop: '1px solid var(--slate-200)', paddingTop: '1rem' }}>
+              <Link to="/portal" style={{ color: 'var(--slate-600)', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}>
+                <span style={{ color: 'var(--gold-500)' }}>🛡️</span>
+                <span>{locale === 'ar' ? 'بوابة الإدارة والتحكم (للمالك والمدراء فقط)' : 'Staff Executive Security Gateway'}</span>
+              </Link>
+            </div>
           </>
         ) : (
           /* MFA VERIFICATION FORM */
@@ -423,86 +295,237 @@ export function LoginPage() {
           </form>
         )}
       </div>
+    </PageContainer>
+  );
+}
 
-      {/* Google Sign-In Direct Prompt Modal */}
-      {showDirectGoogleModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(14, 34, 55, 0.65)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            backdropFilter: 'blur(4px)',
-            padding: '1rem',
-          }}
-        >
+/**
+ * High-Security Dedicated Management Portal (/portal)
+ * Exclusive entry gate for Owner (Anwar Rahil) and Authorized Managers (Mahmoud Rhayel and executive staff).
+ */
+export function PortalPage() {
+  const [locale] = useLocale();
+  const { login, logout, user } = useAuth();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // If already logged in as staff, proceed directly to control dashboard
+  if (user) {
+    const isStaff = ['owner', 'admin', 'pm', 'accountant', 'hr', 'engineer'].includes(user.role);
+    if (isStaff) {
+      navigate(params.get('next') || '/app', { replace: true });
+    }
+  }
+
+  const submitPortalLogin = async (e: FormEvent): Promise<void> => {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+
+    try {
+      const res = await login(email, password);
+      if (res.mfaRequired) {
+        navigate('/login');
+        return;
+      }
+
+      // Check current user role after login
+      const meRes = await api<{ user: { role: string; fullName: string } | null }>('/api/auth/me');
+      if (!meRes.user || !['owner', 'admin', 'pm', 'accountant', 'hr', 'engineer'].includes(meRes.user.role)) {
+        await logout();
+        setError(
+          locale === 'ar'
+            ? 'غير مصرح: هذا المدخل مخصص حصرياً للمالك وفريق الإدارة التنفيذي للشركة. تم حظر محاولة الوصول وتسجيلها.'
+            : 'Access Denied: This executive portal is exclusively reserved for the Owner and Management team. Attempt logged.'
+        );
+        return;
+      }
+
+      navigate(params.get('next') || '/app');
+    } catch (err) {
+      const e2 = err as ApiError;
+      setError(
+        e2.code === 'ACCOUNT_LOCKED'
+          ? (locale === 'ar' ? 'تم قفل الحساب مؤقتاً بسبب تكرار المحاولات غير الصحيحة لحماية النظام.' : 'Account temporarily locked due to repeated attempts.')
+          : e2.code === 'ACCOUNT_DISABLED'
+            ? (locale === 'ar' ? 'هذا الحساب معطّل. تواصل مع الدعم الفني.' : 'This account is disabled.')
+            : (locale === 'ar' ? 'بيانات الاعتماد غير صحيحة. يرجى التحقق من البريد وكلمة المرور الخاصة بالإدارة.' : 'Invalid executive credentials. Access denied.')
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <PageContainer>
+      <div
+        className="card form-card portal-card"
+        style={{
+          maxWidth: 480,
+          margin: '2.5rem auto',
+          background: 'linear-gradient(145deg, #09131e 0%, #0d1e30 100%)',
+          border: '1px solid rgba(185, 138, 46, 0.45)',
+          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.45)',
+          borderRadius: '16px',
+          color: '#ffffff',
+          padding: '2.4rem 2rem',
+        }}
+      >
+        {/* Security Badge */}
+        <div style={{ textAlign: 'center', marginBottom: '1.4rem' }}>
           <div
-            className="card"
             style={{
-              maxWidth: 440,
-              width: '100%',
-              background: '#fff',
-              borderRadius: 'var(--radius)',
-              boxShadow: 'var(--shadow-lg)',
-              padding: '1.8rem',
-              animation: 'fadeIn 0.25s ease-out',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.35rem 0.9rem',
+              background: 'rgba(185, 138, 46, 0.15)',
+              border: '1px solid rgba(185, 138, 46, 0.5)',
+              borderRadius: '20px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              color: 'var(--gold-400)',
+              letterSpacing: '0.04em',
+              marginBottom: '1rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.2rem' }}>
-              <svg viewBox="0 0 24 24" width="28" height="28">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-              </svg>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '1.15rem' }}>{t('auth.googleSignIn')}</h3>
-                <p className="muted small" style={{ margin: 0 }}>
-                  {locale === 'ar' ? 'تسجيل الدخول الفوري ببريد Gmail' : 'Sign in directly with your Google account'}
-                </p>
-              </div>
-            </div>
+            <span>🛡️</span>
+            <span>{locale === 'ar' ? 'بوابة الإدارة والتحكم التنفيذية' : 'EXECUTIVE SECURITY GATEWAY'}</span>
+          </div>
 
-            <form onSubmit={(e) => void submitDirectGoogle(e)}>
-              <Field label={locale === 'ar' ? 'حساب Gmail' : 'Gmail address'} htmlFor="gemail" required>
-                <TextInput
-                  id="gemail"
-                  type="email"
-                  dir="ltr"
-                  required
-                  value={googleDirectEmail}
-                  onChange={(e) => setGoogleDirectEmail(e.target.value)}
-                />
-              </Field>
+          <Link to="/" style={{ display: 'inline-block' }}>
+            <img
+              src="/logo.png"
+              alt="AraLakom"
+              style={{
+                height: 70,
+                width: 'auto',
+                objectFit: 'contain',
+                margin: '0 auto 0.6rem',
+                filter: 'drop-shadow(0 4px 16px rgba(185, 138, 46, 0.4))',
+                borderRadius: '8px',
+              }}
+            />
+          </Link>
 
-              <Field label={locale === 'ar' ? 'الاسم الظاهر' : 'Account Name'} htmlFor="gname">
-                <TextInput
-                  id="gname"
-                  type="text"
-                  value={googleDirectName}
-                  onChange={(e) => setGoogleDirectName(e.target.value)}
-                />
-              </Field>
+          <h1 style={{ fontSize: '1.45rem', margin: '0.3rem 0', color: '#fff', fontWeight: 800 }}>
+            {locale === 'ar' ? 'تسجيل دخول الإدارة العليا' : 'Executive Management Access'}
+          </h1>
+          <p style={{ margin: 0, fontSize: '0.85rem', color: '#a0b3c6', lineHeight: 1.5 }}>
+            {locale === 'ar'
+              ? 'منطقة محمية مخصصة للمالك والإدارة التنفيذية للتحكم وإدارة مشاريع وعمليات الشركة.'
+              : 'Restricted administrative environment for Owner and authorized management.'}
+          </p>
+        </div>
 
-              <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1.4rem' }}>
-                <Button type="submit" busy={googleBusy} className="btn-primary" style={{ flex: 1 }}>
-                  {locale === 'ar' ? 'متابعة الدخول' : 'Continue'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowDirectGoogleModal(false)}
-                >
-                  {t('common.cancel')}
-                </Button>
-              </div>
-            </form>
+        {error && (
+          <div
+            className="alert alert-error"
+            role="alert"
+            style={{
+              marginBottom: '1.2rem',
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              color: '#fca5a5',
+              fontSize: '0.88rem',
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={(e) => void submitPortalLogin(e)} noValidate>
+          <div style={{ marginBottom: '1.2rem' }}>
+            <label
+              htmlFor="portalEmail"
+              style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: 'var(--gold-400)', marginBottom: '0.4rem' }}
+            >
+              {locale === 'ar' ? 'البريد الإلكتروني المعتمد للإدارة' : 'Authorized Staff Email'}
+            </label>
+            <input
+              id="portalEmail"
+              type="email"
+              autoComplete="username"
+              dir="ltr"
+              required
+              placeholder="management@aralakom.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                background: 'rgba(14, 34, 55, 0.85)',
+                border: '1px solid rgba(185, 138, 46, 0.4)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '0.95rem',
+                outline: 'none',
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.4rem' }}>
+            <label
+              htmlFor="portalPassword"
+              style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: 'var(--gold-400)', marginBottom: '0.4rem' }}
+            >
+              {locale === 'ar' ? 'كلمة المرور الأمنية' : 'Security Password'}
+            </label>
+            <input
+              id="portalPassword"
+              type="password"
+              autoComplete="current-password"
+              dir="ltr"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                background: 'rgba(14, 34, 55, 0.85)',
+                border: '1px solid rgba(185, 138, 46, 0.4)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '0.95rem',
+                outline: 'none',
+              }}
+            />
+          </div>
+
+          <Button
+            type="submit"
+            busy={busy}
+            className="btn-block btn-gold btn-gold-gradient"
+            style={{
+              padding: '0.8rem',
+              fontSize: '1rem',
+              fontWeight: 800,
+              borderRadius: '8px',
+              border: 'none',
+              color: '#0e2237',
+              boxShadow: '0 4px 14px rgba(185, 138, 46, 0.4)',
+            }}
+          >
+            {busy ? (locale === 'ar' ? 'جارٍ التحقق الأمني...' : 'Authenticating...') : (locale === 'ar' ? 'تسجيل الدخول إلى لوحة التحكم' : 'Access Control Center')}
+          </Button>
+        </form>
+
+        <div style={{ marginTop: '1.8rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem', textAlign: 'center' }}>
+          <p style={{ margin: 0, fontSize: '0.78rem', color: '#7e93a8' }}>
+            🔒 {locale === 'ar' ? 'اتصال مشفر بتشفير 256-Bit SSL. حماية فائقة ضد هجمات التخمين.' : '256-Bit SSL Encrypted & Brute-Force Protected.'}
+          </p>
+          <div style={{ marginTop: '0.6rem' }}>
+            <Link to="/login" style={{ color: 'var(--gold-400)', fontSize: '0.82rem', textDecoration: 'none' }}>
+              ← {locale === 'ar' ? 'الرجوع لصفحة العملاء والجمهور' : 'Return to Public Login'}
+            </Link>
           </div>
         </div>
-      )}
+      </div>
     </PageContainer>
   );
 }
@@ -519,33 +542,42 @@ export function ForgotPasswordPage() {
     setBusy(true);
     setError(null);
     try {
-      const { api } = await import('../../lib/api');
-      await api('/api/auth/forgot-password', { method: 'POST', body: { email } });
+      await api('/api/auth/password/forgot', { method: 'POST', body: { email } });
       setSent(true);
-    } catch (err) {
-      setError((err as ApiError).code === 'RATE_LIMITED' ? t('errors.e429') : t('common.errorGeneric'));
-    } finally { setBusy(false); }
+    } catch {
+      setSent(true);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
     <PageContainer>
-      <div className="card form-card" style={{ maxWidth: 440, margin: '2rem auto' }}>
-        <h1 style={{ fontSize: '1.3rem' }}>{t('auth.forgotTitle')}</h1>
+      <div className="card form-card" style={{ maxWidth: 440, margin: '3rem auto' }}>
+        <h1>{t('auth.forgotPassword')}</h1>
         {sent ? (
-          <div className="alert alert-success">{t('auth.resetSent')}</div>
+          <div className="alert alert-info">
+            <p>{t('auth.resetSent')}</p>
+            <Link to="/login">{t('auth.backToLogin')}</Link>
+          </div>
         ) : (
           <form onSubmit={(e) => void submit(e)} noValidate>
-            <p className="muted small">{t('auth.forgotText')}</p>
             {error && <div className="alert alert-error">{error}</div>}
-            <Field label={t('auth.email')} htmlFor="femail" required>
-              <TextInput id="femail" type="email" dir="ltr" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Field label={t('auth.email')} htmlFor="email" required>
+              <TextInput
+                id="email"
+                type="email"
+                required
+                dir="ltr"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </Field>
-            <Button type="submit" busy={busy} className="btn-block btn-primary">{t('auth.sendReset')}</Button>
+            <Button type="submit" busy={busy} className="btn-block btn-primary">
+              {t('common.submit')}
+            </Button>
           </form>
         )}
-        <div style={{ textAlign: 'center', marginTop: '0.9rem' }}>
-          <Link to="/login" className="small">{t('common.back')}</Link>
-        </div>
       </div>
     </PageContainer>
   );
@@ -554,54 +586,67 @@ export function ForgotPasswordPage() {
 export function ResetPasswordPage() {
   const { t } = useTranslation();
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const token = params.get('token') ?? '';
-  const [pw, setPw] = useState('');
-  const [pw2, setPw2] = useState('');
+
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
 
   const submit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    if (pw !== pw2) { setError(t('auth.mismatch')); return; }
-    setBusy(true);
     setError(null);
+    if (password !== confirm) {
+      setError(t('auth.mismatch'));
+      return;
+    }
+    setBusy(true);
     try {
-      const { api } = await import('../../lib/api');
-      await api('/api/auth/reset-password', { method: 'POST', body: { token, password: pw } });
+      await api('/api/auth/password/reset', { method: 'POST', body: { token, password } });
       setDone(true);
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       const e2 = err as ApiError;
-      if (e2.code === 'WEAK_PASSWORD') {
-        setError(`${t('auth.pwPolicy')} (${(e2.details ?? []).map((d) => d.message).join(', ')})`);
-      } else if (e2.code === 'INVALID_TOKEN') {
-        setError(t('errors.e400'));
-      } else setError(t('common.errorGeneric'));
-    } finally { setBusy(false); }
+      setError(e2.code === 'INVALID_TOKEN' ? t('auth.tokenInvalid') : t('common.errorGeneric'));
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
     <PageContainer>
-      <div className="card form-card" style={{ maxWidth: 440, margin: '2rem auto' }}>
-        <h1 style={{ fontSize: '1.3rem' }}>{t('auth.resetTitle')}</h1>
+      <div className="card form-card" style={{ maxWidth: 440, margin: '3rem auto' }}>
+        <h1>{t('auth.resetPassword')}</h1>
         {done ? (
-          <div>
-            <div className="alert alert-success">{t('auth.resetOk')}</div>
-            <Link to="/login" className="btn btn-primary btn-block">{t('auth.signIn')}</Link>
-          </div>
+          <div className="alert alert-success">{t('auth.passwordUpdated')}</div>
         ) : (
           <form onSubmit={(e) => void submit(e)} noValidate>
             {error && <div className="alert alert-error">{error}</div>}
-            {!token && <div className="alert alert-warn">{t('errors.e400')}</div>}
-            <Field label={t('auth.newPassword')} htmlFor="npw" required hint={t('auth.pwPolicy')}>
-              <TextInput id="npw" type="password" autoComplete="new-password" required minLength={8}
-                value={pw} onChange={(e) => setPw(e.target.value)} />
+            <Field label={t('auth.password')} htmlFor="password" required hint={t('auth.pwPolicy')}>
+              <TextInput
+                id="password"
+                type="password"
+                required
+                dir="ltr"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </Field>
-            <Field label={t('auth.confirmPassword')} htmlFor="npw2" required>
-              <TextInput id="npw2" type="password" autoComplete="new-password" required
-                value={pw2} onChange={(e) => setPw2(e.target.value)} />
+            <Field label={t('auth.confirmPassword')} htmlFor="confirm" required>
+              <TextInput
+                id="confirm"
+                type="password"
+                required
+                dir="ltr"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+              />
             </Field>
-            <Button type="submit" busy={busy} disabled={!token} className="btn-block btn-primary">{t('common.save')}</Button>
+            <Button type="submit" busy={busy} className="btn-block btn-primary">
+              {t('common.submit')}
+            </Button>
           </form>
         )}
       </div>

@@ -8,7 +8,7 @@ import NotFound from './pages/public/NotFound';
 
 // Public pages (eager — first paint matters)
 import { ServicesPage, PortfolioPage, AboutPage, ContactPage, PrivacyPage, TermsPage } from './pages/public/Public';
-import { LoginPage, ForgotPasswordPage, ResetPasswordPage } from './pages/public/AuthPages';
+import { LoginPage, PortalPage, ForgotPasswordPage, ResetPasswordPage } from './pages/public/AuthPages';
 import ApplyPage from './pages/public/Apply';
 import RequestQuotePage from './pages/public/RequestQuote';
 import TrackPage from './pages/public/Track';
@@ -52,6 +52,8 @@ export default function App() {
         <Route path="/request-quote" element={<RequestQuotePage />} />
         <Route path="/track" element={<TrackPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/portal" element={<PortalPage />} />
+        <Route path="/admin" element={<Navigate to="/portal" replace />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
